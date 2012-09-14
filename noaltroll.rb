@@ -16,5 +16,5 @@ end
 
 post '/procesar_mensaje' do
   session[:msg]=params[:mensaje]
-  redirect '/hi'
+  redirect to '/hi'
 end
