@@ -3,17 +3,14 @@
 # Grupo 4
 ##################
 
-$:.insert 0,"."  # agrega el dir actual para busqueda del require
-
 require 'noaltroll_categorias'
 
 ###############################
 # Arma colección de insultos
 ###############################
-i1=Palabra.new(:palabra=>'pelotudo',:raiz=>'pelotud')
-i2=Palabra.new(:palabra=>'puto',:raiz=>'put')
 $insultos=Array.new 
-$insultos << i1 << i2
+$insultos << Palabra.new(:palabra=>'pelotudo',:raiz=>'pelotud')
+$insultos << Palabra.new(:palabra=>'puto',:raiz=>'put')
 
 #############################################
 # Funcion para llamar desde aplicacion web
