@@ -3,21 +3,28 @@
 # Grupo 4
 ##################
 
-require 'sinatra'
-require 'haml'
+$:.insert 0,"."  # agrega el dir actual para busqueda del require
 
-enable :sessions
+require 'noaltroll_categorias'
 
-get '/' do
-  haml :form
-end
+###############################
+# Arma colección de insultos
+###############################
+i1=Palabra.new(:palabra=>'pelotudo',:raiz=>'pelotud')
+i2=Palabra.new(:palabra=>'puto',:raiz=>'put')
+$insultos=Array.new 
+$insultos << i1 << i2
 
-get '/hi' do
-  @msg=session[:msg]
-  haml :hola
-end
-
-post '/procesar_mensaje' do
-  session[:msg]=params[:mensaje]
-  redirect '/hi'
+#############################################
+# Funcion para llamar desde aplicacion web
+#############################################
+def analizar_mensaje(msg)
+  respuesta=Array.new
+  $insultos.each do |i|
+    Categoria.subclasses.each do |buscar| 
+      r=(buscar .el_insulto i) .en_mensaje msg
+      respuesta << r if r.encontrado
+    end
+  end
+  respuesta
 end

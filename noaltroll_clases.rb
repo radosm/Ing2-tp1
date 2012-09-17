@@ -1,7 +1,40 @@
+class Categoria
+
+  #####################################
+  # Metodos de clase
+  #####################################
+
+  @@subclasses=Array.new
+  # Cada vez que se crea una subclase la agrega al array
+  def self.inherited(subclass)
+    @@subclasses << subclass
+  end
+
+  # Cosmetica
+  def self.el_insulto(*args)
+    self.new(*args)
+  end
+
+  # Devuelve el array con las subclases
+  def self.subclasses
+    @@subclasses
+  end
+
+  #####################################
+  # Metodos de Instancia
+  #####################################
+
+  # Implementado aca porque es comun a todas las subclases
+  def initialize(palabra)
+    @palabra=palabra
+  end
+
+end
+
 class Palabra
-  def initialize(h)
-    @palabra=h[:palabra]
-    @raiz=h[:raiz]
+  def initialize(hash)
+    @palabra=hash[:palabra]
+    @raiz=hash[:raiz]
   end
   def raiz
     @raiz
@@ -38,29 +71,3 @@ class Respuesta
     @encontrado
   end
 end
-
-class Categoria
-
-  @@subclasses=Array.new
-
-  # Cosmetica
-  def self.el(*args)
-    self.new(*args)
-  end
-
-  # Devuelve las subclases
-  def self.subclasses
-    @@subclasses
-  end
-
-  def initialize(palabra)
-    @palabra=palabra
-  end
-
-  # Cada vez que se crea una subclase la agrega al array
-  def self.inherited(subclass)
-    @@subclasses << subclass
-  end
-
-end
-

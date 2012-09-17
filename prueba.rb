@@ -8,9 +8,9 @@ i2=Palabra.new(:palabra=>'puto',:raiz=>'put')
 insultos=Array.new 
 insultos << i1 << i2
 
-insultos.each do |insulto|
+insultos.each do |i|
   Categoria.subclasses.each do |buscar| 
-    r=((buscar .el insulto) .en_mensaje "la puta que te pario, pelotudo" )
+    r=(buscar .el_insulto i) .en_mensaje "la reputisima madre que te pario, superpelotudo"
     puts r.palabra.to_s ,r.posicion.to_s ,r.string_hallado ,r.categoria.to_s if r.encontrado
     puts
   end
