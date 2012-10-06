@@ -11,6 +11,7 @@ require 'noaltroll_categorias'
 $insultos=Array.new 
 $insultos << Palabra.new(:palabra=>'pelotudo',:raiz=>'pelotud')
 $insultos << Palabra.new(:palabra=>'puto',:raiz=>'put')
+$insultos << Palabra.new(:palabra=>'boludo',:raiz=>'bolud')
 
 #############################################
 # Funcion para llamar desde aplicacion web
