@@ -42,17 +42,16 @@ class CategoriaReemplazarTexto
 end
 
 class CategoriaEliminarRepeticiones
-	
 	def limpiarTexto texto
 		textoLimpio = ""
 		i = 0
 		texto.gsub!(/l{2,}/,"L")
 		texto.gsub!(/r{2,}/,"R")
-		while i < texto.size
-			textoLimpio << texto[i]
-			c = texto[i]
-			while texto[i] == c
-				i += 1
+		c_anterior=""
+		texto.each_char do |c|
+			if (c!=c_anterior) 
+				textoLimpio << c
+				c_anterior=c
 			end
 		end
 		return textoLimpio
@@ -178,5 +177,5 @@ comentario = "hola put0 o, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola forro, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola pollerudo, como andas?"
+comentario = "hola pollerudooooo, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
