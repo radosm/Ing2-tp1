@@ -55,7 +55,13 @@ class CategoriaSufijos
 	end
 end
 
-class CategoriaReemplazarTexto
+class EliminarSeparaciones
+	def limpiarTexto texto
+		return texto.gsub(/[^[[:alnum:]]]/,"")
+	end
+end
+
+class ReemplazarTexto
 
 	def initialize reemplazos
 		@reemplazos = reemplazos
@@ -68,7 +74,7 @@ class CategoriaReemplazarTexto
 	end
 end
 
-class CategoriaEliminarRepeticiones
+class EliminarRepeticiones
 	def limpiarTexto texto
 		return texto.dos_o_mas_a_mayusculas
 	end
@@ -167,14 +173,12 @@ flexionado = CategoriaSufijos.new raices, Set["os", "as"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita"]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona"]
 
-simbolosPorLetras = CategoriaReemplazarTexto.new Hash['0'=>'o','1'=>'l']
-letrasSeparadas = CategoriaReemplazarTexto.new Hash[' '=>'', '/'=>'', '.'=>'', ','=>'']
-
+simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'z', '6'=>'g', '9'=>'q']
 
 # Analizador
 
 buscador = BuscadorDeEvidencia.new Set[literal, flexionado, diminutivo, aumentativo]
-filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, letrasSeparadas, CategoriaEliminarRepeticiones.new]
+filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, EliminarSeparaciones.new, EliminarRepeticiones.new]
 moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
@@ -187,10 +191,10 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
   "hola puutooo, como andas?",
   "hola put0 o, como andas?",
   "hola FORRO, como andas?",
-  "hola mequetrrrefe, como andas?",
+  "hola mequ33trrrefe, como andas?",
   "hola pollerudooooo, como andas?",
-  "hola foro, como andas? sos un putazo !"
+  "hola foro, como andas? sos un put42o !"
 ].each do |comentario|
 	resultado=moderador.analizarComentario(comentario)
-	print comentario+":  "+ resultado.publicable?.to_s+" Insultos:"+(resultado.insultos.to_a).to_s+"\n"
+	print comentario+": "+ resultado.publicable?.to_s+" Insultos: "+(resultado.insultos.to_a).to_s+"\n"
 end
