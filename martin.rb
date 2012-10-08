@@ -1,5 +1,32 @@
 require 'set'
 
+class String
+	def dos_o_mas_a_mayusculas
+		salida=""
+		c_anterior=""
+		downcase.each_char do |c|
+			if (c!=c_anterior) 
+				salida << c
+				c_anterior=c
+			else
+				salida[salida.size-1]=salida[salida.size-1].upcase
+			end
+		end
+		return salida
+	end
+	def existe_palabra? palabra
+		er=""
+		palabra.each_char do |c|
+			if c.capitalize == c
+				er=er+c
+			else
+				er=er+"["+c+c.capitalize+"]"
+			end
+		end
+		return Regexp.new(er).match(self)
+	end
+end
+
 class CategoriaPrefijos
 
 	def initialize raices, prefijos
@@ -43,18 +70,7 @@ end
 
 class CategoriaEliminarRepeticiones
 	def limpiarTexto texto
-		textoLimpio = ""
-		i = 0
-		texto.gsub!(/l{2,}/,"L")
-		texto.gsub!(/r{2,}/,"R")
-		c_anterior=""
-		texto.each_char do |c|
-			if (c!=c_anterior) 
-				textoLimpio << c
-				c_anterior=c
-			end
-		end
-		return textoLimpio
+		return texto.dos_o_mas_a_mayusculas
 	end
 end
 
@@ -66,7 +82,7 @@ class BuscadorDeEvidencia
 		encontrados = Set.new
 		@categorias.each do |c|
 			c.palabras.each do |p|
-				if comentario.include? p.gsub(/l{2,}/,"L").gsub(/r{2,}/,"R")
+				if comentario.existe_palabra? p.dos_o_mas_a_mayusculas
 					encontrados << p
 				end
 			end
@@ -103,7 +119,7 @@ class Evidencia
 	end
 end
 
-class Analizador
+class AnalizadorDeEvidencia
 	def publicable?
 		false
 	end
@@ -112,7 +128,7 @@ class Analizador
 	end
 end
 
-class AnalizadorBasico < Analizador
+class AnalizadorBasico < AnalizadorDeEvidencia
 	def initialize(evidencia)
 		@evidencia = evidencia
 	end
@@ -133,7 +149,7 @@ class Moderador
 
 	def analizarComentario comentario
 		insultosDetectados = Set.new
-		@filtrador.filtrarTexto(comentario.downcase).each do |unTextoFiltrado|
+		@filtrador.filtrarTexto(comentario).each do |unTextoFiltrado|
 			insultosDetectados.merge (@buscador.buscarInsultos unTextoFiltrado)
 		end
 		evidencia = Evidencia.new insultosDetectados, comentario
@@ -144,9 +160,9 @@ end
 
 # Categorias
 
-raices = ["bolud","pelotud","put","forr","pollerud"]
+raices = ["bolud","pelotud","put","forr","pollerud","mequetref"]
 
-literal = CategoriaSufijos.new raices, Set["o", "a"]
+literal = CategoriaSufijos.new raices, Set["o", "a", "e"]
 flexionado = CategoriaSufijos.new raices, Set["os", "as"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita"]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota"]
@@ -175,7 +191,11 @@ comentario = "hola puutooo, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola put0 o, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola forro, como andas?"
+comentario = "hola FORRO, como andas?"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
+comentario = "hola mequetrrrefe, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola pollerudooooo, como andas?"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
+comentario = "hola foro, como andas?"
 print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
