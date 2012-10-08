@@ -165,7 +165,7 @@ raices = ["bolud","pelotud","put","forr","pollerud","mequetref"]
 literal = CategoriaSufijos.new raices, Set["o", "a", "e"]
 flexionado = CategoriaSufijos.new raices, Set["os", "as"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita"]
-aumentativo = CategoriaSufijos.new raices, Set["ote", "ota"]
+aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona"]
 
 simbolosPorLetras = CategoriaReemplazarTexto.new Hash['0'=>'o','1'=>'l']
 letrasSeparadas = CategoriaReemplazarTexto.new Hash[' '=>'', '/'=>'', '.'=>'', ','=>'']
@@ -179,23 +179,16 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
 
-comentario = "hola, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola boludo, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola b0ludo, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola b 0 ludo, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola puutooo, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola put0 o, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola FORRO, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola mequetrrrefe, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola pollerudooooo, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola foro, como andas?"
-print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
+[ "hola, como andas?", 
+"hola boludo, como andas? h i j o d e p u u u t a",
+"hola b0ludo, como andas?",
+"hola b 0 ludo, como andas?",
+"hola puutooo, como andas?",
+"hola put0 o, como andas?",
+"hola FORRO, como andas?",
+"hola mequetrrrefe, como andas?",
+"hola pollerudooooo, como andas?",
+"hola foro, como andas? sos un putazo !" ].each do |comentario|
+	resultado=moderador.analizarComentario(comentario)
+	print comentario+":  "+ resultado.publicable?.to_s+" Insultos:"+(resultado.insultos.to_a).to_s+"\n"
+end
