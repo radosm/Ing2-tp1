@@ -173,12 +173,14 @@ flexionado = CategoriaSufijos.new raices, Set["os", "as"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita"]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona"]
 
-simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'z', '6'=>'g', '9'=>'q']
 
-# Analizador
+# Crea Moderador
 
 buscador = BuscadorDeEvidencia.new Set[literal, flexionado, diminutivo, aumentativo]
+
+simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'z', '6'=>'g', '9'=>'q']
 filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, EliminarSeparaciones.new, EliminarRepeticiones.new]
+
 moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
@@ -196,5 +198,5 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
   "hola foro, como andas? sos un put42o !"
 ].each do |comentario|
 	resultado=moderador.analizarComentario(comentario)
-	print comentario+": "+ resultado.publicable?.to_s+" Insultos: "+(resultado.insultos.to_a).to_s+"\n"
+	print comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s+"\n"
 end
