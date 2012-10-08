@@ -16,7 +16,7 @@ class String
 	end
 	def existe_palabra? palabra
 		er=""
-		palabra.each_char do |c|
+		palabra.dos_o_mas_a_mayusculas.each_char do |c|
 			if c.capitalize == c
 				er=er+c
 			else
@@ -82,7 +82,7 @@ class BuscadorDeEvidencia
 		encontrados = Set.new
 		@categorias.each do |c|
 			c.palabras.each do |p|
-				if comentario.existe_palabra? p.dos_o_mas_a_mayusculas
+				if comentario.existe_palabra? p
 					encontrados << p
 				end
 			end
@@ -179,16 +179,18 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
 
-[ "hola, como andas?", 
-"hola boludo, como andas? h i j o d e p u u u t a",
-"hola b0ludo, como andas?",
-"hola b 0 ludo, como andas?",
-"hola puutooo, como andas?",
-"hola put0 o, como andas?",
-"hola FORRO, como andas?",
-"hola mequetrrrefe, como andas?",
-"hola pollerudooooo, como andas?",
-"hola foro, como andas? sos un putazo !" ].each do |comentario|
+[ 
+  "hola, como andas?", 
+  "hola boludo, como andas? h i j o d e p/u u u t a",
+  "hola b0ludo, como andas?",
+  "hola b 0 ludo, como andas?",
+  "hola puutooo, como andas?",
+  "hola put0 o, como andas?",
+  "hola FORRO, como andas?",
+  "hola mequetrrrefe, como andas?",
+  "hola pollerudooooo, como andas?",
+  "hola foro, como andas? sos un putazo !"
+].each do |comentario|
 	resultado=moderador.analizarComentario(comentario)
 	print comentario+":  "+ resultado.publicable?.to_s+" Insultos:"+(resultado.insultos.to_a).to_s+"\n"
 end
