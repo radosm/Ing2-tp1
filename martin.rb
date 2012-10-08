@@ -46,6 +46,8 @@ class CategoriaEliminarRepeticiones
 	def limpiarTexto texto
 		textoLimpio = ""
 		i = 0
+		texto.gsub!(/l{2,}/,"L")
+		texto.gsub!(/r{2,}/,"R")
 		while i < texto.size
 			textoLimpio << texto[i]
 			c = texto[i]
@@ -65,7 +67,7 @@ class BuscadorDeEvidencia
 		encontrados = Set.new
 		@categorias.each do |c|
 			c.palabras.each do |p|
-				if comentario.include? p
+				if comentario.include? p.gsub(/l{2,}/,"L").gsub(/r{2,}/,"R")
 					encontrados << p
 				end
 			end
@@ -102,15 +104,21 @@ class Evidencia
 	end
 end
 
-class AnalizadorBasico
+class Analizador
+	def publicable?
+		false
+	end
+	def dudoso?
+		false
+	end
+end
+
+class AnalizadorBasico < Analizador
 	def initialize(evidencia)
 		@evidencia = evidencia
 	end
 	def publicable?
 		self.insultos.empty?
-	end
-	def comentario
-		@evidencia.comentario
 	end
 	def insultos
 		@evidencia.palabras
@@ -126,7 +134,7 @@ class Moderador
 
 	def analizarComentario comentario
 		insultosDetectados = Set.new
-		@filtrador.filtrarTexto(comentario).each do |unTextoFiltrado|
+		@filtrador.filtrarTexto(comentario.downcase).each do |unTextoFiltrado|
 			insultosDetectados.merge (@buscador.buscarInsultos unTextoFiltrado)
 		end
 		evidencia = Evidencia.new insultosDetectados, comentario
@@ -152,23 +160,23 @@ letrasSeparadas = CategoriaReemplazarTexto.new Hash[' '=>'', '/'=>'', '.'=>'', '
 
 buscador = BuscadorDeEvidencia.new Set[literal, flexionado, diminutivo, aumentativo]
 filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, letrasSeparadas, CategoriaEliminarRepeticiones.new]
-analizador = Moderador.new buscador, filtrador, AnalizadorBasico
+moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
 
 comentario = "hola, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola boludo, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola b0ludo, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola b 0 ludo, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola puutooo, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola put0 o, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
 comentario = "hola forro, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
-comentario = "hola poollerudo, como andas?"
-print comentario+":  "+ analizador.analizarComentario(comentario).publicable?.to_s+"\n"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
+comentario = "hola pollerudo, como andas?"
+print comentario+":  "+ moderador.analizarComentario(comentario).publicable?.to_s+"\n"
