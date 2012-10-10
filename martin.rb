@@ -32,28 +32,24 @@ end
 class CategoriaPrefijos
 
 	def initialize raices, prefijos
-		@raices = raices
-		@prefijos = prefijos
+		@palabras = Set.new 
+		raices.each {|raiz| prefijos.each {|prefijo| @palabras.add prefijo+raiz}}
 	end
 	
 	def palabras
-		palabras = Set.new 
-		@raices.each {|raiz| @prefijos.each {|prefijo| palabras.add prefijo+raiz}}
-		return palabras
+		@palabras
 	end
 end
 
 class CategoriaSufijos
 
 	def initialize raices, sufijos
-		@raices = raices
-		@sufijos = sufijos
+		@palabras = Set.new 
+		raices.each {|raiz| sufijos.each {|sufijo| @palabras.add raiz+sufijo}}
 	end
 	
 	def palabras
-		palabras = Set.new 
-		@raices.each {|raiz| @sufijos.each {|sufijo| palabras.add raiz+sufijo}}
-		return palabras
+		@palabras
 	end
 end
 
@@ -169,18 +165,27 @@ end
 
 # Categorias
 
-raices = ["bolud","pelotud","put","forr","pollerud","mequetref"]
+raices = ["bolud","pelotud","put","forr"]
+
+categorias=Set.new
 
 literal = CategoriaSufijos.new raices, Set["o", "a", "e"]
 flexionado = CategoriaSufijos.new raices, Set["os", "as", "es"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita", "itos", "itas", "in", "ines" ]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona", "isima", "isimo"]
 peyorativo = CategoriaSufijos.new raices, Set[ "oncho", "oncha", "onchos", "onchas", "ongo", "ongos", "onga", "ongas" ]
-prefijo = CategoriaPrefijos.new raices, Set[ "hiper", "super", "re", "remil" ]
+
+categorias_sufijo=Set[ literal, flexionado, diminutivo, aumentativo, peyorativo ]
+
+palabras=Set.new
+categorias_sufijo.each { |categoria| palabras.merge(categoria.palabras) }
+
+categorias_prefijo=Set.new
+categorias_prefijo.add ( CategoriaPrefijos.new palabras, Set[ "hiper", "super", "re", "remil" ] )
 
 # Crea Moderador
 
-buscador = BuscadorDeEvidencia.new Set[literal, flexionado, diminutivo, aumentativo, prefijo, peyorativo]
+buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
 
 simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'dos', '6'=>'g', 
                                              'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','7'=>'t']
@@ -203,7 +208,7 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
   ##"hola foro, como andas? sos un put42o !"
 ##].each do |comentario|
 	##resultado=moderador.analizarComentario(comentario)
-	##print comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s+"\n"
+	##puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
 ##end 
 
 # Pruebas de la catedra
@@ -247,5 +252,5 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 	"Rajá, boluuuuudo."
 ].each do |comentario|
 	resultado=moderador.analizarComentario(comentario)
-	print comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s+"\n"
+	puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
 end
