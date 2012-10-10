@@ -69,7 +69,7 @@ class ReemplazarTexto
 	
 	def limpiarTexto texto
 		textoLimpio = texto
-		@reemplazos.keys.each {|clave| textoLimpio = textoLimpio.tr clave, @reemplazos[clave]}
+		@reemplazos.keys.each {|clave| textoLimpio.gsub! clave, @reemplazos[clave]}
 		return textoLimpio
 	end
 end
@@ -153,7 +153,8 @@ class Moderador
 		@analizador = analizador
 	end
 
-	def analizarComentario comentario
+	def analizarComentario comentario_p
+		comentario=String.new(comentario_p)
 		insultosDetectados = Set.new
 		@filtrador.filtrarTexto(comentario).each do |unTextoFiltrado|
 			insultosDetectados.merge (@buscador.buscarInsultos unTextoFiltrado)
@@ -173,14 +174,13 @@ flexionado = CategoriaSufijos.new raices, Set["os", "as"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita"]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona"]
 
-
 # Crea Moderador
 
 buscador = BuscadorDeEvidencia.new Set[literal, flexionado, diminutivo, aumentativo]
 
 simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'z', '6'=>'g', '9'=>'q']
-filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, EliminarSeparaciones.new, EliminarRepeticiones.new]
-
+fonetico = ReemplazarTexto.new Hash['ah'=>'a','eh'=>'e','ih'=>'i','oh'=>'o','uh'=>'u']
+filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, EliminarSeparaciones.new, EliminarRepeticiones.new ,fonetico]
 moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 
 # Pruebas
@@ -193,8 +193,8 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
   "hola puutooo, como andas?",
   "hola put0 o, como andas?",
   "hola FORRO, como andas?",
-  "hola mequ33trrrefe, como andas?",
-  "hola pollerudooooo, como andas?",
+  "hola mequ3e3hhhhtrrrefe, como andas?",
+  "hola pollehhehhrudooooo, como andas?",
   "hola foro, como andas? sos un put42o !"
 ].each do |comentario|
 	resultado=moderador.analizarComentario(comentario)
