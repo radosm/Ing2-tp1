@@ -1,4 +1,5 @@
-%h1 Mensaje: #{@msg}
-%h1 Palabras encontradas: #{@resultado}
+%h1 Mensaje: #{session[:mensaje]}
+%h2 Es publicable? #{session[:resultado].publicable? ? "Sí" : "No"}
+%h2 Insultos: #{session[:resultado].insultos.to_a.to_s}
 %div
   %a{:href=>"/"} Ingresar otro mensaje

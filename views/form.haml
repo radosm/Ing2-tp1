@@ -1,4 +1,21 @@
+%h1 NoAlTroll
 %form{:method=>"POST",:action=>"/procesar_mensaje"}
-  Ingrese un mensaje: 
-  %input{:name=>"mensaje"}
-  %input{:type=>"submit"}
+  %p
+    Ingrese un mensaje:
+    %br
+    %input{:name=>"mensaje"}
+  %p
+    %b Categorías:
+    %br
+    %select{:name => "categorias"}
+      %option{:value => "prefijos"} Prefijos
+      %option{:value => "prefijosYsufijos"} Prefijos y sufijos
+    %br
+  %p
+    %b Filtros:
+    %br
+    - session[:filtros].keys.map(&:to_s).each do |x|
+      %input{:type=>"checkbox", :name=>"#{x}", :value=>"on"} #{x}
+      %br
+  %p
+    %input{:type=>"submit"}

@@ -1,5 +1,11 @@
 #encoding: utf-8
+##################
+# TP1 - Ing 2
+# Grupo 4
+##################
 
+require 'sinatra'
+require 'haml'
 require 'set'
 
 class String
@@ -183,9 +189,7 @@ categorias_sufijo.each { |categoria| palabras.merge(categoria.palabras) }
 categorias_prefijo=Set.new
 categorias_prefijo.add ( CategoriaPrefijos.new palabras, Set[ "hiper", "super", "re", "remil" ] )
 
-# Crea Moderador
-
-buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
+# Filtros
 
 simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'dos', '6'=>'g', 
                                              'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','7'=>'t']
@@ -193,74 +197,39 @@ eliminarSeparaciones = EliminarRepeticiones.new
 eliminarRepeticiones = EliminarRepeticiones.new
 fonetico = ReemplazarTexto.new Hash['ah'=>'a','eh'=>'e','ih'=>'i','oh'=>'o','uh'=>'u']
 
-filtrador = FiltradorDeTexto.new Set[simbolosPorLetras, eliminarSeparaciones, eliminarRepeticiones, fonetico]
-moderador = Moderador.new buscador, filtrador, AnalizadorBasico
+# Empieza el codigo de UI
 
-# Pruebas nuestras
+enable :sessions
 
-##[ 
-  ##"hola, como andas?", 
-  ##"hola boludo, como andas? h i j o d e p/u u u t a",
-  ##"hola b0ludo, como andas?",
-  ##"hola b 0 ludo, como andas?",
-  ##"hola puutooo, como andas?",
-  ##"hola pu t 0 o, como andas?",
-  ##"hola FORRO, como andas?",
-  ##"hola mequ3e3hhhhtrrrefe, como andas?",
-  ##"hola pollehhehhrudooooo, como andas?",
-  ##"hola foro, como andas? sos un put42o !"
-##].each do |comentario|
-	##resultado=moderador.analizarComentario(comentario)
-	##puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
-##end 
-
-# Pruebas de la catedra
-
-def pruebas
-    [
-        "¿Por qué el pollo cruzó el camino?",
-        "El pollo este es un pelotudo.",
-        "El muy hijo de puta cruzó el camino cuando nadie lo miraba.",
-        "Los niños y las niñas son los únicos y las únicas privilegiados y privelegiadas.",
-        "Pelotudos y boludas son iguales ante la ley.",
-        "Los muy hijos de puta se fueron sin avisarme.",
-        "Te mando un besito grande.",
-        "¿Quién va a ser, si no el pelotudito de siempre?",
-        "¡Tremendo boludín viniste a salir!",
-        "De golpe y porrazo me moría de hambre.",
-        "Forrazo como no hay dos.",
-        "La putísima madre que lo parió.",
-        "Libracos no, alpargatuchas sí.",
-        "A pelotudoncho no te gana nadie.",
-        "El rey de los boludongos.",
-        "Hipermercado supercalifragilisticoexpialidoso.",
-        "¡Hijo de la remilputa!",
-        "Superboludo al rescate.",
-        "E-s-p-e-c-t-a-c-u-l-a-r",
-        "Se la dió de p.e.l.o.t.u.d.o.",
-        "Le pasó x h i j o d e p u t a.",
-        "Parece verdadero pelo tu disfraz de gorila.",
-        "No te diste cuenta por pelo-tudo.",
-        "No te diste cuenta por bo lu do.",
-        "Diputados tratan prohibición de llamar ciencia a la computación.",
-        "¿Qué mirás, pelotudo.com?",
-        "Sólo un hijodeputa puede querer algo así.",
-        "L33t a1N7 p-r8 NOR 1am3.",
-        "Hay que explicárselo al p3l07udo de siempre.",
-        "A los b01u2 hay decírselos dos veces.",
-        "Amerika perdida.",
-        "¿Es voludo o se hace?",
-        "El ijoeputa me dejó de garpe.",
-        "El campana: es taaan-tonn-tiiiíín...",
-        "Andaaaaáááá, boludoooo.",
-        "Rajá, boluuuuudo."
-    ].each do |comentario|
-        resultado=moderador.analizarComentario(comentario)
-        puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
-    end
+get '/' do
+  session[:filtros] = {:simbolosPorLetras => simbolosPorLetras, :eliminarSeparaciones => eliminarSeparaciones, :eliminarRepeticiones => eliminarRepeticiones, :fonetico => fonetico}
+  haml :form
 end
 
-# Solo ejecutar si no es importado por otro archivo
-if __FILE__ == $0
-    pruebas
+get '/hi' do
+  haml :hola
+end
+
+post '/procesar_mensaje' do
+  msg = params[:mensaje]
+  session[:mensaje] = msg
+
+  if session[:categorias] == "prefijos"
+    buscador = BuscadorDeEvidencia.new categorias_prefijo
+  else
+    buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
+  end
+
+  filtros = Set.new
+  session[:filtros].each do |x,y|
+    if params[x]
+        filtros << y
+    end
+  end
+
+  filtrador = FiltradorDeTexto.new filtros
+  moderador = Moderador.new buscador, filtrador, AnalizadorBasico
+  session[:resultado] = moderador.analizarComentario(msg)
+
+  redirect '/hi'
 end
