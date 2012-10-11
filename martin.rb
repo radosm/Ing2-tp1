@@ -163,6 +163,8 @@ class Moderador
 		
 end
 
+
+def pruebas
 # Categorias
 
 raices = ["bolud","pelotud","put","forr"]
@@ -189,7 +191,7 @@ buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
 
 simbolosPorLetras = ReemplazarTexto.new Hash['0'=>'o','1'=>'l','4'=>'a','3'=>'e','5'=>'s','2'=>'dos', '6'=>'g', 
                                              'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','7'=>'t']
-eliminarSeparaciones = EliminarRepeticiones.new
+eliminarSeparaciones = EliminarSeparaciones.new
 eliminarRepeticiones = EliminarRepeticiones.new
 fonetico = ReemplazarTexto.new Hash['ah'=>'a','eh'=>'e','ih'=>'i','oh'=>'o','uh'=>'u']
 
@@ -214,9 +216,8 @@ moderador = Moderador.new buscador, filtrador, AnalizadorBasico
 	##puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
 ##end 
 
-# Pruebas de la catedra
 
-def pruebas
+# Pruebas de la catedra
     [
         "¿Por qué el pollo cruzó el camino?",
         "El pollo este es un pelotudo.",
@@ -253,7 +254,8 @@ def pruebas
         "El ijoeputa me dejó de garpe.",
         "El campana: es taaan-tonn-tiiiíín...",
         "Andaaaaáááá, boludoooo.",
-        "Rajá, boluuuuudo."
+        "Rajá, boluuuuudo.",
+        "pu 70."
     ].each do |comentario|
         resultado=moderador.analizarComentario(comentario)
         puts comentario+": "+ resultado.publicable?.to_s+"  -  Insultos: "+(resultado.insultos.to_a).to_s
