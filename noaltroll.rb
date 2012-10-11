@@ -173,21 +173,11 @@ end
 
 raices = ["bolud","pelotud","put","forr"]
 
-categorias=Set.new
-
 literal = CategoriaSufijos.new raices, Set["o", "a", "e"]
 flexionado = CategoriaSufijos.new raices, Set["os", "as", "es"]
 diminutivo = CategoriaSufijos.new raices, Set["ito", "ita", "itos", "itas", "in", "ines" ]
 aumentativo = CategoriaSufijos.new raices, Set["ote", "ota", "azo", "aza", "on", "ona", "isima", "isimo"]
 peyorativo = CategoriaSufijos.new raices, Set[ "oncho", "oncha", "onchos", "onchas", "ongo", "ongos", "onga", "ongas" ]
-
-categorias_sufijo=Set[ literal, flexionado, diminutivo, aumentativo, peyorativo ]
-
-palabras=Set.new
-categorias_sufijo.each { |categoria| palabras.merge(categoria.palabras) }
-
-categorias_prefijo=Set.new
-categorias_prefijo.add ( CategoriaPrefijos.new palabras, Set[ "hiper", "super", "re", "remil" ] )
 
 # Filtros
 
@@ -199,9 +189,12 @@ fonetico = ReemplazarTexto.new Hash['ah'=>'a','eh'=>'e','ih'=>'i','oh'=>'o','uh'
 
 # Empieza el codigo de UI
 
-enable :sessions
+# mantener sesiones mayores a 4k
+use Rack::Session::Pool, :expire_after => 2592000
+
 
 get '/' do
+  session[:categorias] = {:literal => literal, :flexionado => flexionado, :diminutivo => diminutivo, :aumentativo => aumentativo, :peyorativo => peyorativo}
   session[:filtros] = {:simbolosPorLetras => simbolosPorLetras, :eliminarSeparaciones => eliminarSeparaciones, :eliminarRepeticiones => eliminarRepeticiones, :fonetico => fonetico}
   haml :form
 end
@@ -214,11 +207,24 @@ post '/procesar_mensaje' do
   msg = params[:mensaje]
   session[:mensaje] = msg
 
-  if params[:categorias] == "sufijos"
-    buscador = BuscadorDeEvidencia.new categorias_sufijo
-  else
-    buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
+  categorias = Set.new
+  session[:categorias].each do |x,y|
+    if params[x]
+        categorias << y
+    end
   end
+
+  if params[:prefijos]
+      palabras = Set.new
+      categorias.each {|unaCategoria| palabras.merge(unaCategoria.palabras)}
+
+      categorias_prefijo = Set.new
+      categorias_prefijo.add ( CategoriaPrefijos.new palabras, Set[ "hiper", "super", "re", "remil" ] )
+
+      categorias.merge(categorias_prefijo)
+  end
+
+  buscador = BuscadorDeEvidencia.new categorias
 
   filtros = Set.new
   session[:filtros].each do |x,y|
@@ -226,8 +232,8 @@ post '/procesar_mensaje' do
         filtros << y
     end
   end
-
   filtrador = FiltradorDeTexto.new filtros
+
   moderador = Moderador.new buscador, filtrador, AnalizadorBasico
   session[:resultado] = moderador.analizarComentario(msg)
 
