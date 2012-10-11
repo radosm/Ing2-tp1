@@ -214,8 +214,8 @@ post '/procesar_mensaje' do
   msg = params[:mensaje]
   session[:mensaje] = msg
 
-  if session[:categorias] == "prefijos"
-    buscador = BuscadorDeEvidencia.new categorias_prefijo
+  if params[:categorias] == "sufijos"
+    buscador = BuscadorDeEvidencia.new categorias_sufijo
   else
     buscador = BuscadorDeEvidencia.new categorias_sufijo.merge(categorias_prefijo)
   end
