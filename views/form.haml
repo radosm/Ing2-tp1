@@ -8,9 +8,9 @@
     %b Categorías:
     %br
     - session[:categorias].keys.map(&:to_s).each do |x|
-      %input{:type=>"checkbox", :name=>"#{x}", :value=>"on"} #{x}
+      %input{:type=>"checkbox", :name=>"#{x}", :value=>"on", :checked=>""} #{x}
       %br
-    %input{:type=>"checkbox", :name=>"prefijos", :value=>"on"} Prefijos
+    %input{:type=>"checkbox", :name=>"prefijos", :value=>"on", :checked=>""} Prefijos
     %br
   %p
     %b Filtros:
